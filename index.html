@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>有情門DEMO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <section id="login-screen" class="screen active">
+      <div class="login-panel">
+        <h1>有情門DEMO</h1>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="username">帳號</label>
+            <input id="username" name="username" type="text" placeholder="請輸入帳號">
+            <p class="field-message" data-for="username"></p>
+          </div>
+          <div class="field">
+            <label for="password">密碼</label>
+            <input id="password" name="password" type="password" placeholder="請輸入密碼">
+            <p class="field-message" data-for="password"></p>
+          </div>
+          <p id="login-status" class="status-text" aria-live="polite"></p>
+          <button id="login-button" type="submit">登入</button>
+          <p class="helper-text">Demo 帳號：demo / 密碼：demo123</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="dashboard-screen" class="screen">
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="brand">有情門DEMO</div>
+          <nav class="nav-group">
+            <div class="nav-section">
+              <div class="nav-title">商品管理</div>
+              <button class="nav-item active" data-view="products">所有商品列表</button>
+              <button class="nav-item" data-view="category-pages">商品分類頁面</button>
+              <button class="nav-item" data-view="spec-tags">商品規格標籤</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">訂單管理</div>
+              <button class="nav-item" data-view="orders">訂單查詢與匯出</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">門市管理</div>
+              <button class="nav-item" data-view="stores">門市商品設定</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">系統設定</div>
+              <button class="nav-item" data-view="system">系統設定</button>
+            </div>
+          </nav>
+        </aside>
+
+        <main class="content">
+          <header class="page-header">
+            <div>
+              <p class="breadcrumb" id="breadcrumb">商品管理 &gt; 所有商品列表</p>
+              <h2 id="page-title">所有商品列表</h2>
+            </div>
+            <button id="logout-button" class="secondary-button" type="button">登出</button>
+          </header>
+
+          <section id="products-view" class="view active">
+            <div id="product-list-screen">
+              <div class="toolbar">
+                <button id="add-product-button" type="button">新增商品</button>
+              </div>
+
+              <form id="product-filter-form" class="panel" novalidate>
+                <div class="filter-grid">
+                  <input id="search-name" type="text" placeholder="請輸入商品名稱">
+                  <select id="search-category">
+                    <option value="">商品分類</option>
+                  </select>
+                  <select id="search-status">
+                    <option value="">商品狀態</option>
+                    <option value="全數上架">全數上架</option>
+                    <option value="缺色">缺色</option>
+                    <option value="全數下架">全數下架</option>
+                    <option value="隱藏">隱藏</option>
+                  </select>
+                  <button type="submit">搜尋</button>
+                  <button id="clear-filter-button" class="secondary-button" type="button">清除</button>
+                </div>
+              </form>
+
+              <div class="panel">
+                <div class="batch-actions">
+                  <span id="selected-count">已選取 0 筆</span>
+                  <button id="batch-publish" type="button">批次上架</button>
+                  <button id="batch-unpublish" type="button">批次下架</button>
+                  <button id="batch-delete" type="button">批次刪除</button>
+                </div>
+
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><input id="select-all" type="checkbox" aria-label="全選商品"></th>
+                        <th>商品圖片</th>
+                        <th>商品名稱</th>
+                        <th>商品分類</th>
+                        <th>商品狀態</th>
+                        <th>更新時間</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="product-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="product-detail-screen" class="subview">
+              <div class="toolbar toolbar-start">
+                <button id="back-to-products-button" class="secondary-button" type="button">&lt; 返回所有商品列表</button>
+              </div>
+
+              <div class="page-header page-header-detail">
+                <div>
+                  <h3 id="product-detail-title" class="subpage-title">單一商品詳情 / 編輯</h3>
+                </div>
+                <button id="save-product-button-top" type="button">儲存商品</button>
+              </div>
+
+              <div class="tab-bar">
+                <button class="tab-button active" type="button" data-product-tab="info">商品資訊</button>
+                <button class="tab-button" type="button" data-product-tab="description">商品描述</button>
+                <button class="tab-button" type="button" data-product-tab="settings">設定</button>
+                <button class="tab-button" type="button" data-product-tab="variants">款式規格</button>
+                <button class="tab-button" type="button" data-product-tab="tags">標籤設定</button>
+              </div>
+
+              <section id="product-tab-info" class="tab-panel active">
+                <div class="panel">
+                  <div class="two-column-grid">
+                    <div class="field">
+                      <label for="product-name-input">商品名稱</label>
+                      <input id="product-name-input" type="text" placeholder="請輸入商品名稱">
+                    </div>
+                    <div class="field">
+                      <label for="product-price-input">主價錢</label>
+                      <input id="product-price-input" type="number" min="0" placeholder="請輸入主商品價格">
+                    </div>
+                    <div class="field">
+                      <label for="product-main-sku-input">主商品 SKU</label>
+                      <input id="product-main-sku-input" type="text" placeholder="請輸入主商品 SKU">
+                    </div>
+                    <div class="field">
+                      <label for="product-url-input">商品網址</label>
+                      <div class="url-input-group">
+                        <span class="url-prefix">/products/</span>
+                        <input id="product-url-input" type="text" placeholder="請輸入商品網址">
+                      </div>
+                      <p id="product-url-preview" class="helper-text helper-text-inline">/products/</p>
+                    </div>
+                    <div class="field">
+                      <label for="product-status-input">商品狀態</label>
+                      <select id="product-status-input">
+                        <option value="上架">上架</option>
+                        <option value="下架">下架</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="product-search-toggle">商品搜尋開關</label>
+                      <select id="product-search-toggle">
+                        <option value="開啟">開啟</option>
+                        <option value="關閉">關閉</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="two-column-grid">
+                    <div class="field">
+                      <label for="product-slogan-mode">商品標語</label>
+                      <select id="product-slogan-mode">
+                        <option value="純文字">純文字</option>
+                        <option value="HTML / CSS">HTML / CSS</option>
+                      </select>
+                      <textarea id="product-slogan-input" rows="5" placeholder="請輸入商品標語"></textarea>
+                    </div>
+                    <div class="field">
+                      <label for="product-summary-mode">商品簡述</label>
+                      <select id="product-summary-mode">
+                        <option value="純文字">純文字</option>
+                        <option value="HTML / CSS">HTML / CSS</option>
+                      </select>
+                      <textarea id="product-summary-input" rows="5" placeholder="請輸入商品簡述"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="section-header">
+                    <h3>主圖片上傳</h3>
+                  </div>
+                  <div id="product-image-dropzone" class="upload-dropzone" tabindex="0">
+                    <p>將圖片拖拉到此處，或點擊上傳</p>
+                    <p class="helper-text helper-text-inline">最多 10 張，每張圖片不可超過 2MB</p>
+                    <input id="product-images-input" type="file" accept="image/*" multiple hidden>
+                  </div>
+                  <p id="product-image-status" class="status-text" aria-live="polite"></p>
+                  <div id="product-image-preview-list" class="image-grid"></div>
+                </div>
+              </section>
+
+              <section id="product-tab-description" class="tab-panel">
+                <div class="panel">
+                  <div class="field">
+                    <label for="product-intro-mode">商品介紹</label>
+                    <select id="product-intro-mode">
+                      <option value="視覺編輯">視覺編輯</option>
+                      <option value="HTML">HTML</option>
+                    </select>
+                    <textarea id="product-intro-input" rows="6" placeholder="請輸入商品介紹"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="product-spec-mode">規格說明</label>
+                    <select id="product-spec-mode">
+                      <option value="視覺編輯">視覺編輯</option>
+                      <option value="HTML">HTML</option>
+                    </select>
+                    <textarea id="product-spec-input" rows="6" placeholder="請輸入規格說明"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="product-shipping-mode">運送方式</label>
+                    <select id="product-shipping-mode">
+                      <option value="視覺編輯">視覺編輯</option>
+                      <option value="HTML">HTML</option>
+                    </select>
+                    <textarea id="product-shipping-input" rows="6" placeholder="請輸入運送方式"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section id="product-tab-settings" class="tab-panel">
+                <div class="panel">
+                  <div class="field">
+                    <label>商品自訂分類</label>
+                    <div id="product-custom-category-options" class="checkbox-group"></div>
+                  </div>
+                  <div class="two-column-grid">
+                    <div class="field">
+                      <label for="product-discount-group">任選折扣群組</label>
+                      <select id="product-discount-group">
+                        <option value="無">無</option>
+                        <option value="任選 2 件 9 折">任選 2 件 9 折</option>
+                        <option value="任選 3 件 85 折">任選 3 件 85 折</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="product-type">商品類型</label>
+                      <select id="product-type">
+                        <option value="一般商品">一般商品</option>
+                        <option value="組合商品">組合商品</option>
+                        <option value="加購商品">加購商品</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label>CYBERBIZ 標籤</label>
+                      <div id="product-cyberbiz-tags" class="checkbox-group"></div>
+                    </div>
+                    <div class="field">
+                      <label>商品通路</label>
+                      <div id="product-channel-options" class="checkbox-group"></div>
+                    </div>
+                    <div class="field">
+                      <label for="product-vendor">商品廠商</label>
+                      <input id="product-vendor" type="text" placeholder="請輸入或選擇廠商">
+                    </div>
+                    <div class="field">
+                      <label for="product-google-category">GOOGLE 產品類別</label>
+                      <input id="product-google-category" type="text" placeholder="請輸入 GOOGLE 產品類別">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="section-header">
+                    <h3>溫層和物流配送設定</h3>
+                  </div>
+                  <p class="section-description">待討論</p>
+                </div>
+
+                <div class="panel">
+                  <div class="section-header">
+                    <h3>產品關聯群組</h3>
+                  </div>
+                  <p class="section-description">待討論</p>
+                </div>
+
+                <div class="panel">
+                  <div class="section-header">
+                    <h3>SEO 設定</h3>
+                  </div>
+                  <p class="section-description">此區預設使用 CYBERBIZ SEO 欄位</p>
+                  <div class="field">
+                    <label for="product-seo-title">SEO 標題</label>
+                    <input id="product-seo-title" type="text" placeholder="請輸入 SEO 標題">
+                  </div>
+                  <div class="field">
+                    <label for="product-seo-description">SEO 描述</label>
+                    <textarea id="product-seo-description" rows="4" placeholder="請輸入 SEO 描述"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="product-seo-keywords">SEO 關鍵字</label>
+                    <input id="product-seo-keywords" type="text" placeholder="請輸入 SEO 關鍵字">
+                  </div>
+                </div>
+              </section>
+
+              <section id="product-tab-variants" class="tab-panel">
+                <div class="panel">
+                  <div class="section-header">
+                    <h3>款式規格</h3>
+                    <button id="add-variant-button" type="button">新增款式</button>
+                  </div>
+                  <p id="variant-status-text" class="status-text" aria-live="polite"></p>
+                  <div id="variant-list" class="variant-list"></div>
+                </div>
+              </section>
+
+              <section id="product-tab-tags" class="tab-panel">
+                <div class="panel order-panel">
+                  <h3 class="subpage-title">標籤設定</h3>
+                  <p class="section-description">此頁面暫時空白</p>
+                </div>
+              </section>
+
+              <div class="footer-actions footer-actions-start">
+                <button id="save-product-button-bottom" type="button">儲存商品</button>
+                <p id="product-save-status" class="status-text" aria-live="polite"></p>
+              </div>
+            </div>
+          </section>
+
+          <section id="orders-view" class="view">
+            <div class="panel order-panel">
+              <p class="section-description">請設定要匯出的訂單條件。</p>
+              <form id="export-form" novalidate>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="start-date">開始日期</label>
+                    <input id="start-date" type="date">
+                  </div>
+                  <div class="field">
+                    <label for="end-date">結束日期</label>
+                    <input id="end-date" type="date">
+                  </div>
+                </div>
+                <div class="field narrow-field">
+                  <label for="order-status">訂單狀態</label>
+                  <select id="order-status">
+                    <option value="全部">全部</option>
+                    <option value="開啟">開啟</option>
+                    <option value="結案">結案</option>
+                    <option value="取消">取消</option>
+                  </select>
+                </div>
+                <p id="export-status" class="status-text" aria-live="polite"></p>
+                <button id="export-button" type="submit">匯出 CSV</button>
+              </form>
+            </div>
+          </section>
+
+          <section id="category-pages-view" class="view">
+            <div id="category-page-list-screen">
+              <div class="toolbar">
+                <button id="add-category-page-button" type="button">新增分類頁</button>
+              </div>
+
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>分類頁名稱</th>
+                        <th>英文名稱</th>
+                        <th>狀態</th>
+                        <th>更新時間</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="category-page-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="category-page-detail-screen" class="subview">
+              <div class="toolbar toolbar-start">
+                <button id="back-to-category-pages-button" class="secondary-button" type="button">&lt; 返回分類頁列表</button>
+              </div>
+
+              <div class="panel">
+                <h3 id="category-page-detail-title" class="subpage-title">編輯分類頁</h3>
+              </div>
+
+              <div class="panel">
+                <div class="section-header">
+                  <h3>分類頁基本資料</h3>
+                </div>
+                <form id="category-page-form" class="stack-form" novalidate>
+                  <div class="two-column-grid">
+                    <div class="field">
+                      <label for="category-page-name">分類頁名稱</label>
+                      <input id="category-page-name" type="text" placeholder="例如：沙發">
+                    </div>
+                    <div class="field">
+                      <label for="category-page-en-name">英文名稱</label>
+                      <input id="category-page-en-name" type="text" placeholder="例如：Sofa">
+                    </div>
+                    <div class="field">
+                      <label for="category-page-subtitle">副標題</label>
+                      <input id="category-page-subtitle" type="text" placeholder="例如：探索我們的沙發系列">
+                    </div>
+                    <div class="field">
+                      <label for="category-page-status">狀態</label>
+                      <select id="category-page-status">
+                        <option value="啟用">啟用</option>
+                        <option value="停用">停用</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="panel">
+                <div class="section-header">
+                  <h3>Banner 圖片設定</h3>
+                </div>
+                <div class="field">
+                  <label for="category-banner-input">上傳圖片</label>
+                  <input id="category-banner-input" type="file" accept="image/*">
+                  <div class="banner-preview-box">
+                    <img id="category-banner-preview" class="banner-preview hidden" alt="Banner 圖片預覽">
+                    <div id="category-banner-placeholder" class="preview-placeholder">Banner Preview</div>
+                  </div>
+                  <div class="inline-form-actions">
+                    <button id="replace-category-banner-button" class="secondary-button" type="button">更換圖片</button>
+                    <button id="remove-category-banner-button" class="secondary-button" type="button">刪除圖片</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="section-header">
+                  <h3>篩選條件設定</h3>
+                </div>
+                <p class="section-description">請選擇此分類頁前台要顯示的篩選條件。</p>
+                <div id="category-filter-groups" class="filter-groups"></div>
+              </div>
+
+              <div class="panel">
+                <div class="section-header">
+                  <h3>前台商品顯示規則</h3>
+                </div>
+                <div class="two-column-grid">
+                  <div class="field">
+                    <label for="products-per-row">每排商品數</label>
+                    <input id="products-per-row" type="number" min="1" max="8">
+                  </div>
+                  <div class="field">
+                    <label for="row-count">顯示排數</label>
+                    <input id="row-count" type="number" min="1" max="8">
+                  </div>
+                  <div class="field">
+                    <label for="page-size">每頁商品數</label>
+                    <input id="page-size" type="number" min="1" max="99">
+                  </div>
+                  <div class="field">
+                    <label for="load-style">載入方式</label>
+                    <select id="load-style">
+                      <option value="載入更多">載入更多</option>
+                      <option value="分頁">分頁</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="section-header">
+                  <h3>儲存設定 / 產出程式碼</h3>
+                </div>
+                <div class="footer-actions footer-actions-start">
+                  <div class="inline-form-actions">
+                    <button id="save-category-page-button" type="button">儲存設定</button>
+                    <button id="generate-category-code-button" type="button">產出程式碼</button>
+                  </div>
+                  <p id="category-page-status-text" class="status-text" aria-live="polite"></p>
+                </div>
+                <div class="code-block-panel">
+                  <div class="section-header">
+                    <h3>產出程式碼</h3>
+                    <button id="copy-category-code-button" class="secondary-button" type="button">複製程式碼</button>
+                  </div>
+                  <pre id="category-code-output" class="code-output">尚未產出程式碼</pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="stores-view" class="view">
+            <div id="store-list-screen">
+              <div class="toolbar">
+                <button id="add-store-button" type="button">新增門市</button>
+              </div>
+
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>門市名稱</th>
+                        <th>門市代碼</th>
+                        <th>更新時間</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="store-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="store-detail-screen" class="subview">
+              <div class="toolbar toolbar-start">
+                <button id="back-to-stores-button" class="secondary-button" type="button">&lt; 返回門市列表</button>
+              </div>
+
+              <div class="panel">
+                <h3 id="store-detail-title" class="subpage-title">門市商品設定</h3>
+                <form id="store-product-filter-form" class="stack-form" novalidate>
+                  <div class="filter-grid store-filter-grid">
+                    <input id="store-product-search" type="text" placeholder="請輸入商品名稱">
+                    <select id="store-product-sort">
+                      <option value="desc">上架時間：新到舊</option>
+                      <option value="asc">上架時間：舊到新</option>
+                    </select>
+                    <button type="submit">搜尋</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><input id="store-select-all" type="checkbox" aria-label="全選門市商品"></th>
+                        <th>商品圖片</th>
+                        <th>商品名稱</th>
+                        <th>商品分類</th>
+                        <th>商品狀態</th>
+                        <th>上架時間</th>
+                      </tr>
+                    </thead>
+                    <tbody id="store-product-table-body"></tbody>
+                  </table>
+                </div>
+                <div class="footer-actions">
+                  <p id="store-save-status" class="status-text" aria-live="polite"></p>
+                  <button id="save-store-products-button" type="button">儲存設定</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="spec-tags-view" class="view">
+            <div class="tag-layout panel">
+              <aside class="tag-sidebar">
+                <div class="section-header">
+                  <h3>標籤分類</h3>
+                </div>
+                <div id="tag-category-list" class="category-list"></div>
+                <button id="add-category-button" type="button">新增分類</button>
+              </aside>
+
+              <div class="tag-content">
+                <div class="section-header">
+                  <div>
+                    <h3 id="tag-panel-title">布色1｜標籤列表</h3>
+                  </div>
+                  <button id="add-tag-button" type="button">新增標籤</button>
+                </div>
+
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>標籤圖片</th>
+                        <th>標籤名稱</th>
+                        <th>特殊編碼 / SKU</th>
+                        <th>關閉時間</th>
+                        <th>狀態</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tag-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="system-view" class="view">
+            <div class="panel order-panel">
+              <h3 class="subpage-title">系統設定</h3>
+              <p class="section-description">此頁面為預留功能，暫未開放。</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="confirm-dialog">
+    <form method="dialog" class="dialog-form">
+      <h3 id="dialog-title">確認操作</h3>
+      <p id="dialog-message"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="dialog-confirm-button" value="confirm" type="submit">確定</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="store-dialog">
+    <form id="store-form" method="dialog" class="dialog-form" novalidate>
+      <h3>新增門市</h3>
+      <div class="field">
+        <label for="store-name-input">門市名稱</label>
+        <input id="store-name-input" name="storeName" type="text" placeholder="請輸入門市名稱">
+      </div>
+      <div class="field">
+        <label for="store-code-input">門市代碼</label>
+        <input id="store-code-input" name="storeCode" type="text" placeholder="請輸入門市代碼">
+      </div>
+      <p id="store-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="store-submit-button" value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="category-dialog">
+    <form id="category-form" method="dialog" class="dialog-form" novalidate>
+      <h3>新增分類</h3>
+      <div class="field">
+        <label for="category-name-input">分類名稱</label>
+        <input id="category-name-input" name="categoryName" type="text" placeholder="請輸入分類名稱">
+      </div>
+      <p id="category-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="tag-dialog">
+    <form id="tag-form" method="dialog" class="dialog-form" novalidate>
+      <h3 id="tag-dialog-title">新增標籤</h3>
+      <div class="field">
+        <label for="tag-name-input">標籤名稱</label>
+        <input id="tag-name-input" name="tagName" type="text" placeholder="請輸入標籤名稱">
+      </div>
+      <div class="field">
+        <label for="tag-sku-input">特殊編碼 / SKU</label>
+        <input id="tag-sku-input" name="tagSku" type="text" placeholder="請輸入特殊編碼">
+      </div>
+      <div class="field">
+        <label for="tag-image-input">標籤圖片</label>
+        <input id="tag-image-input" name="tagImage" type="file" accept="image/*">
+        <div class="image-preview-box">
+          <img id="tag-image-preview" class="image-preview hidden" alt="標籤圖片預覽">
+          <div id="tag-image-placeholder" class="preview-placeholder">圖片預覽區</div>
+        </div>
+        <div class="inline-form-actions">
+          <button id="remove-tag-image-button" class="secondary-button" type="button">刪除圖片</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="tag-close-date-input">關閉時間</label>
+        <input id="tag-close-date-input" name="tagCloseDate" type="date">
+      </div>
+      <p id="tag-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="tag-submit-button" value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="product-row-template">
+    <tr>
+      <td><input class="row-select" type="checkbox" aria-label="選取商品"></td>
+      <td>
+        <button class="image-placeholder row-link" type="button">圖片</button>
+      </td>
+      <td><button class="row-link product-name" type="button"></button></td>
+      <td class="product-categories"></td>
+      <td><span class="status-chip"></span></td>
+      <td class="updated-at"></td>
+      <td>
+        <div class="row-actions">
+          <button class="inline-action hide-action" type="button">隱藏</button>
+          <button class="inline-action delete-action" type="button">刪除</button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
