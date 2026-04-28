@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>有情門DEMO</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <section id="login-screen" class="screen active">
+      <div class="login-panel">
+        <h1>有情門DEMO</h1>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="username">帳號</label>
+            <input id="username" name="username" type="text" placeholder="請輸入帳號">
+            <p class="field-message" data-for="username"></p>
+          </div>
+          <div class="field">
+            <label for="password">密碼</label>
+            <input id="password" name="password" type="password" placeholder="請輸入密碼">
+            <p class="field-message" data-for="password"></p>
+          </div>
+          <p id="login-status" class="status-text" aria-live="polite"></p>
+          <button id="login-button" type="submit">登入</button>
+          <p class="helper-text">Demo 帳號：demo / 密碼：demo123</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="dashboard-screen" class="screen">
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="brand">有情門DEMO</div>
+          <nav class="nav-group">
+            <div class="nav-section">
+              <div class="nav-title">商品管理</div>
+              <button class="nav-item active" data-view="products">所有商品列表</button>
+              <button class="nav-item" type="button" disabled>商品分類頁面</button>
+              <button class="nav-item" data-view="spec-tags">商品規格標籤</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">訂單管理</div>
+              <button class="nav-item" data-view="orders">訂單查詢與匯出</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">門市管理</div>
+              <button class="nav-item" data-view="stores">門市商品設定</button>
+            </div>
+            <div class="nav-section">
+              <div class="nav-title">系統設定</div>
+              <button class="nav-item" data-view="system">系統設定</button>
+            </div>
+          </nav>
+        </aside>
+
+        <main class="content">
+          <header class="page-header">
+            <div>
+              <p class="breadcrumb" id="breadcrumb">商品管理 &gt; 所有商品列表</p>
+              <h2 id="page-title">所有商品列表</h2>
+            </div>
+            <button id="logout-button" class="secondary-button" type="button">登出</button>
+          </header>
+
+          <section id="products-view" class="view active">
+            <div class="toolbar">
+              <button id="add-product-button" type="button">新增商品</button>
+            </div>
+
+            <form id="product-filter-form" class="panel" novalidate>
+              <div class="filter-grid">
+                <input id="search-name" type="text" placeholder="請輸入商品名稱">
+                <select id="search-category">
+                  <option value="">商品分類</option>
+                </select>
+                <select id="search-status">
+                  <option value="">商品狀態</option>
+                  <option value="全數上架">全數上架</option>
+                  <option value="缺色">缺色</option>
+                  <option value="全數下架">全數下架</option>
+                  <option value="隱藏">隱藏</option>
+                </select>
+                <button type="submit">搜尋</button>
+                <button id="clear-filter-button" class="secondary-button" type="button">清除</button>
+              </div>
+            </form>
+
+            <div class="panel">
+              <div class="batch-actions">
+                <span id="selected-count">已選取 0 筆</span>
+                <button id="batch-publish" type="button">批次上架</button>
+                <button id="batch-unpublish" type="button">批次下架</button>
+                <button id="batch-delete" type="button">批次刪除</button>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th><input id="select-all" type="checkbox" aria-label="全選商品"></th>
+                      <th>商品圖片</th>
+                      <th>商品名稱</th>
+                      <th>商品分類</th>
+                      <th>商品狀態</th>
+                      <th>更新時間</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="product-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="orders-view" class="view">
+            <div class="panel order-panel">
+              <p class="section-description">請設定要匯出的訂單條件。</p>
+              <form id="export-form" novalidate>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="start-date">開始日期</label>
+                    <input id="start-date" type="date">
+                  </div>
+                  <div class="field">
+                    <label for="end-date">結束日期</label>
+                    <input id="end-date" type="date">
+                  </div>
+                </div>
+                <div class="field narrow-field">
+                  <label for="order-status">訂單狀態</label>
+                  <select id="order-status">
+                    <option value="全部">全部</option>
+                    <option value="開啟">開啟</option>
+                    <option value="結案">結案</option>
+                    <option value="取消">取消</option>
+                  </select>
+                </div>
+                <p id="export-status" class="status-text" aria-live="polite"></p>
+                <button id="export-button" type="submit">匯出 CSV</button>
+              </form>
+            </div>
+          </section>
+
+          <section id="stores-view" class="view">
+            <div id="store-list-screen">
+              <div class="toolbar">
+                <button id="add-store-button" type="button">新增門市</button>
+              </div>
+
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>門市名稱</th>
+                        <th>門市代碼</th>
+                        <th>更新時間</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="store-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="store-detail-screen" class="subview">
+              <div class="toolbar toolbar-start">
+                <button id="back-to-stores-button" class="secondary-button" type="button">&lt; 返回門市列表</button>
+              </div>
+
+              <div class="panel">
+                <h3 id="store-detail-title" class="subpage-title">門市商品設定</h3>
+                <form id="store-product-filter-form" class="stack-form" novalidate>
+                  <div class="filter-grid store-filter-grid">
+                    <input id="store-product-search" type="text" placeholder="請輸入商品名稱">
+                    <select id="store-product-sort">
+                      <option value="desc">上架時間：新到舊</option>
+                      <option value="asc">上架時間：舊到新</option>
+                    </select>
+                    <button type="submit">搜尋</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="panel">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><input id="store-select-all" type="checkbox" aria-label="全選門市商品"></th>
+                        <th>商品圖片</th>
+                        <th>商品名稱</th>
+                        <th>商品分類</th>
+                        <th>商品狀態</th>
+                        <th>上架時間</th>
+                      </tr>
+                    </thead>
+                    <tbody id="store-product-table-body"></tbody>
+                  </table>
+                </div>
+                <div class="footer-actions">
+                  <p id="store-save-status" class="status-text" aria-live="polite"></p>
+                  <button id="save-store-products-button" type="button">儲存設定</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="spec-tags-view" class="view">
+            <div class="tag-layout panel">
+              <aside class="tag-sidebar">
+                <div class="section-header">
+                  <h3>標籤分類</h3>
+                </div>
+                <div id="tag-category-list" class="category-list"></div>
+                <button id="add-category-button" type="button">新增分類</button>
+              </aside>
+
+              <div class="tag-content">
+                <div class="section-header">
+                  <div>
+                    <h3 id="tag-panel-title">布色1｜標籤列表</h3>
+                  </div>
+                  <button id="add-tag-button" type="button">新增標籤</button>
+                </div>
+
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>標籤圖片</th>
+                        <th>標籤名稱</th>
+                        <th>特殊編碼 / SKU</th>
+                        <th>關閉時間</th>
+                        <th>狀態</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tag-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="system-view" class="view">
+            <div class="panel order-panel">
+              <h3 class="subpage-title">系統設定</h3>
+              <p class="section-description">此頁面為預留功能，暫未開放。</p>
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="confirm-dialog">
+    <form method="dialog" class="dialog-form">
+      <h3 id="dialog-title">確認操作</h3>
+      <p id="dialog-message"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="dialog-confirm-button" value="confirm" type="submit">確定</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="store-dialog">
+    <form id="store-form" method="dialog" class="dialog-form" novalidate>
+      <h3>新增門市</h3>
+      <div class="field">
+        <label for="store-name-input">門市名稱</label>
+        <input id="store-name-input" name="storeName" type="text" placeholder="請輸入門市名稱">
+      </div>
+      <div class="field">
+        <label for="store-code-input">門市代碼</label>
+        <input id="store-code-input" name="storeCode" type="text" placeholder="請輸入門市代碼">
+      </div>
+      <p id="store-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="store-submit-button" value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="category-dialog">
+    <form id="category-form" method="dialog" class="dialog-form" novalidate>
+      <h3>新增分類</h3>
+      <div class="field">
+        <label for="category-name-input">分類名稱</label>
+        <input id="category-name-input" name="categoryName" type="text" placeholder="請輸入分類名稱">
+      </div>
+      <p id="category-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="tag-dialog">
+    <form id="tag-form" method="dialog" class="dialog-form" novalidate>
+      <h3 id="tag-dialog-title">新增標籤</h3>
+      <div class="field">
+        <label for="tag-name-input">標籤名稱</label>
+        <input id="tag-name-input" name="tagName" type="text" placeholder="請輸入標籤名稱">
+      </div>
+      <div class="field">
+        <label for="tag-sku-input">特殊編碼 / SKU</label>
+        <input id="tag-sku-input" name="tagSku" type="text" placeholder="請輸入特殊編碼">
+      </div>
+      <div class="field">
+        <label for="tag-image-input">標籤圖片</label>
+        <input id="tag-image-input" name="tagImage" type="file" accept="image/*">
+        <div class="image-preview-box">
+          <img id="tag-image-preview" class="image-preview hidden" alt="標籤圖片預覽">
+          <div id="tag-image-placeholder" class="preview-placeholder">圖片預覽區</div>
+        </div>
+        <div class="inline-form-actions">
+          <button id="remove-tag-image-button" class="secondary-button" type="button">刪除圖片</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="tag-close-date-input">關閉時間</label>
+        <input id="tag-close-date-input" name="tagCloseDate" type="date">
+      </div>
+      <p id="tag-form-status" class="status-text" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="submit">取消</button>
+        <button id="tag-submit-button" value="confirm" type="submit">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="product-row-template">
+    <tr>
+      <td><input class="row-select" type="checkbox" aria-label="選取商品"></td>
+      <td>
+        <button class="image-placeholder row-link" type="button">圖片</button>
+      </td>
+      <td><button class="row-link product-name" type="button"></button></td>
+      <td class="product-categories"></td>
+      <td><span class="status-chip"></span></td>
+      <td class="updated-at"></td>
+      <td>
+        <div class="row-actions">
+          <button class="inline-action hide-action" type="button">隱藏</button>
+          <button class="inline-action delete-action" type="button">刪除</button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
